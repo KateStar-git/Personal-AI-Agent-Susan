@@ -17,7 +17,7 @@ image inputs
 📅 Calendar management (create/delete events)
 📇 Contact retrieval using vector search (RAG)
 
-## 🏗️ Architecture
+## Architecture
 Telegram → n8n Workflow → AI Agent → Tools/APIs → Response
 
 ## Components:
