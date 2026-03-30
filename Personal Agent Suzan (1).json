@@ -1,0 +1,900 @@
+{
+  "name": "Personal Agent Suzan",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -192,
+        0
+      ],
+      "id": "08a34b6d-1606-47e9-9017-602cabbe4c18",
+      "name": "Telegram Trigger",
+      "webhookId": "53c9f19d-9fde-4246-9667-e6df84d3c626",
+      "credentials": {
+        "telegramApi": {
+          "id": "4IzkT7uRvQajNvXu",
+          "name": "Personal Agent Monica"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        720,
+        224
+      ],
+      "id": "58904e85-b046-4dbe-af3a-605688155b58",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        560,
+        208
+      ],
+      "id": "d749ca23-4cb9-4914-91bd-0621ccaaf626",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "qqHVG1El3Pn0jsJY",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1680,
+        192
+      ],
+      "id": "5c07a4d6-9d49-4abf-8777-02c3418ce66a",
+      "name": "Send a text message",
+      "webhookId": "90b7e084-91ee-45df-9194-b7ceb2df403e",
+      "credentials": {
+        "telegramApi": {
+          "id": "4IzkT7uRvQajNvXu",
+          "name": "Personal Agent Monica"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "a1c05f9e-6ddf-4d5b-817f-3d1ad22ce11d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ee81670f-0b05-46ab-9ee1-2478134679c3",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Tekst"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "efbf7ea9-d8d4-4b74-be5a-b25a01bc3459",
+                    "leftValue": "={{ $json.message.photo }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "array",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "294664c8-d777-4532-bad9-04344b6e51ae",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        -160
+      ],
+      "id": "80e9a483-f74e-40db-8a17-341657c0b749",
+      "name": "Get audio",
+      "webhookId": "7178a735-0b9e-4ef2-a630-a0ead169021f",
+      "credentials": {
+        "telegramApi": {
+          "id": "4IzkT7uRvQajNvXu",
+          "name": "Personal Agent Monica"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        -160
+      ],
+      "id": "94945eff-7653-442b-8bd4-14f4b21e1934",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "qqHVG1El3Pn0jsJY",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e6ee4e7a-8aac-4477-8d87-775c31cca6ef",
+              "name": "text",
+              "value": "={{ $('Telegram Trigger').item.json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        16
+      ],
+      "id": "d9eb2802-5347-4e85-8236-b0c59a8afd8f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{ $('AI Agent Suzan').item.json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        1168,
+        -16
+      ],
+      "id": "e54ab638-40e8-42d2-bcc3-697a73b1e809",
+      "name": "Generate audio",
+      "credentials": {
+        "openAiApi": {
+          "id": "qqHVG1El3Pn0jsJY",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6835bb71-dadc-49cc-93f9-de7c8451a038",
+              "leftValue": "={{ $('Telegram Trigger').item.json.message.voice.file_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        992,
+        -16
+      ],
+      "id": "4521acb6-e6c8-418c-94eb-a0fc55c9faae",
+      "name": "if voice message was send"
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1328,
+        -16
+      ],
+      "id": "fc3f9ab7-0f39-428c-85b7-842d15f0120e",
+      "name": "Send an audio file",
+      "webhookId": "1d9667c0-5ebe-4061-9276-f18ebf03f4c8",
+      "credentials": {
+        "telegramApi": {
+          "id": "4IzkT7uRvQajNvXu",
+          "name": "Personal Agent Monica"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo[0].file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        320
+      ],
+      "id": "264d90bf-1f83-47db-87dc-cd5402502ef0",
+      "name": "downolad imagine",
+      "webhookId": "7eb65119-13d7-4133-bcb0-8f869670ca93",
+      "credentials": {
+        "telegramApi": {
+          "id": "4IzkT7uRvQajNvXu",
+          "name": "Personal Agent Monica"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d38e0765-6c25-4797-9efc-804d7a7cc640",
+              "name": "output",
+              "value": "={{ $json['0'].content[0].text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        336
+      ],
+      "id": "d7f9aff9-bc5b-4cc5-a347-2d389498b492",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "text": "={{ $('Telegram Trigger').item.json.message.caption || \"Opisz co jest na zdjęciu\"}}",
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        368,
+        320
+      ],
+      "id": "a0ed1035-bd76-43f1-bf32-6ff66786832e",
+      "name": "Analyze image",
+      "credentials": {
+        "openAiApi": {
+          "id": "qqHVG1El3Pn0jsJY",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        1184,
+        560
+      ],
+      "id": "0f5e82ed-7031-418b-8f2b-b2d521845253",
+      "name": "Send an email",
+      "webhookId": "9dd5fe1e-318d-4a3f-9382-ac64faadd71b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "84jfvOKagv1Nh7pI",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 5,
+        "filters": {
+          "labelIds": [
+            "INBOX",
+            "UNREAD"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        1040,
+        576
+      ],
+      "id": "dbad8a4c-4d6a-4605-851a-bbec84234f15",
+      "name": "Recover emails",
+      "webhookId": "89a6ca11-d243-4d12-9cf6-21e9e8295dcc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "84jfvOKagv1Nh7pI",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "kmchojnowska@gmail.com",
+          "mode": "list",
+          "cachedResultName": "kmchojnowska@gmail.com"
+        },
+        "returnAll": "={{ false }}",
+        "limit": 15,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1472,
+        544
+      ],
+      "id": "13f5e0e4-7092-469e-96c1-4cd0baf24fee",
+      "name": "Recover events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "IkfXIOginUBPe9pM",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "kmchojnowska@gmail.com",
+          "mode": "list",
+          "cachedResultName": "kmchojnowska@gmail.com"
+        },
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1328,
+        560
+      ],
+      "id": "d724c88c-fa76-46a8-bca2-f78526608ac2",
+      "name": "Add an event in Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "IkfXIOginUBPe9pM",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "kmchojnowska@gmail.com",
+          "mode": "list",
+          "cachedResultName": "kmchojnowska@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        576
+      ],
+      "id": "0c4a936a-fbf2-476c-bd53-138273c141f7",
+      "name": "Delete an event in Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "IkfXIOginUBPe9pM",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1776,
+        704
+      ],
+      "id": "1fc42874-8890-4ea1-9cb9-3dd955d187d4",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "qqHVG1El3Pn0jsJY",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Uzyj tego narzędzia do odzyskiwania emaili  i  kontaktów",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "contacts",
+          "mode": "list",
+          "cachedResultName": "contacts"
+        },
+        "topK": 10,
+        "options": {
+          "pineconeNamespace": "Contacts"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        1616,
+        544
+      ],
+      "id": "4640b066-c93a-4f32-90d6-a39083294a7c",
+      "name": "Contacts",
+      "credentials": {
+        "pineconeApi": {
+          "id": "4zMdGoxp9Jj3B1qL",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "= \n\nTo jest wiadomość od Kate: \n{{ $json.message.text }}\n\nRola\nMasz na imię Suzan. Jesteś Personalną Asystentką Kate. \nBądź zawsze miła i pomocna.\n\n\nRozmawiasz z {{ $json.message.from.first_name }}\n\nData i godzina : {{ $now }}\n\nOdpowiadaj zwięźle.\n\nNarzędzia:\n\n1 Recover emails. Użyj tego narzędzia aby pobrać wszystkie nieprzeczytane emaile z gmaila.\nW swojej odpowiedzi podaj:\n-podsumowanie treści wiadomości\n-adres email nadawcy. \n-imię i nazwisko\n\n2. Send an email:\nUżyj tego narzędzia aby użyć email\nWymaga podania adresu odbiorcy  tematu i treści wiadomości.\nZanim wyślesz do kogokolwiek emaila najpierw uzyj narzędzia Contacts.\n\n3. Recover events in Calendar\nUżyj tego narzedzia aby pobrać wydarzania z kalendarza\n\n4. Add an event\nUżyj tego narzędzia aby utworzyć nowe wydarznie w kalendarzu\n\n\n5. Remove an event\nUżyj tego narzędzia aby usunąć istniejące wydarzenie w kalendarzu\n\n6. Contacts\nUżywaj tego narzędzia aby pobrać informacje o kontaktach takie jak adresy email, telefon\n\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "1478bc72-21bc-433e-b60b-bc1bb4b81f99",
+      "name": "AI Agent Suzan"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent Suzan",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent Suzan",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "downolad imagine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe a recording": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Suzan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent Suzan",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if voice message was send": {
+      "main": [
+        [
+          {
+            "node": "Generate audio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate audio": {
+      "main": [
+        [
+          {
+            "node": "Send an audio file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "downolad imagine": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze image": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an email": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Suzan",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recover emails": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Suzan",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recover events": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Suzan",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add an event in Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Suzan",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete an event in Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Suzan",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Contacts",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contacts": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent Suzan",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent Suzan": {
+      "main": [
+        [
+          {
+            "node": "if voice message was send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "timezone": "Europe/Warsaw",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "08b90aaa-06af-4ae6-a97c-5463bb78e825",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae002c203006b6472c35ba76f04fe70f5ae8903f2d0b0bcdd00c826bdca880e8"
+  },
+  "id": "XHQkQ1x65Uc_f0d081xzp",
+  "tags": [
+    {
+      "updatedAt": "2026-03-24T11:37:56.937Z",
+      "createdAt": "2026-03-24T11:37:56.937Z",
+      "id": "2kSWmasAQibkR11Q",
+      "name": "trigger on form submissi"
+    },
+    {
+      "updatedAt": "2026-03-24T11:38:09.371Z",
+      "createdAt": "2026-03-24T11:38:09.371Z",
+      "id": "ExiTfpeOcajEGFux",
+      "name": "telegram"
+    },
+    {
+      "updatedAt": "2026-03-24T11:37:08.406Z",
+      "createdAt": "2026-03-24T11:37:08.406Z",
+      "id": "LlhOQ67hTV0wCwjU",
+      "name": "voice answers"
+    },
+    {
+      "updatedAt": "2026-03-24T11:36:15.406Z",
+      "createdAt": "2026-03-24T11:36:15.406Z",
+      "id": "MzOmmYERjaMxwFAl",
+      "name": "pinecone rag"
+    },
+    {
+      "updatedAt": "2026-03-24T11:37:16.410Z",
+      "createdAt": "2026-03-24T11:37:16.410Z",
+      "id": "dmFkrjDolXm3SIqS",
+      "name": "text answers"
+    },
+    {
+      "updatedAt": "2026-03-24T11:37:26.146Z",
+      "createdAt": "2026-03-24T11:37:26.146Z",
+      "id": "gbxE0jo9Z08NP7Eo",
+      "name": "analizing image"
+    }
+  ]
+}
