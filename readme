@@ -1,0 +1,49 @@
+# AI Personal Assistant (n8n + OpenAI + Pinecone)
+
+📌 Overview
+
+## This project is a multi-modal AI personal assistant built using n8n, integrating LLMs, vector search, and external APIs to automate daily tasks.
+
+### The assistant communicates via Telegram and supports:
+text
+voice
+image inputs
+🧠 Features
+💬 Conversational AI with memory
+🎤 Voice input (speech-to-text)
+🔊 Voice output (text-to-speech)
+🖼️ Image analysis (vision model)
+📧 Email management (read/send)
+📅 Calendar management (create/delete events)
+📇 Contact retrieval using vector search (RAG)
+
+## 🏗️ Architecture
+Telegram → n8n Workflow → AI Agent → Tools/APIs → Response
+
+## Components:
+n8n – workflow orchestration
+OpenAI – LLM, speech, vision
+Pinecone – vector database
+Gmail API – email automation
+Google Calendar API – scheduling
+
+## RAG Pipeline:
+Upload contacts via form
+Parse and split documents
+Generate embeddings (OpenAI)
+Store in Pinecone
+Retrieve via semantic search
+
+## Tech Stack:
+n8n (workflow automation)
+OpenAI (GPT, Whisper, Vision)
+Pinecone (vector DB)
+LangChain (agent + tools)
+Telegram Bot API
+Google APIs (Gmail, Calendar)
+
+## Use Cases
+Personal productivity assistant
+AI automation demo
+RAG system prototype
+Multi-modal AI agent
