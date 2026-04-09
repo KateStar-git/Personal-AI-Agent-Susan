@@ -38,7 +38,6 @@ Retrieve via semantic search
 n8n (workflow automation)
 OpenAI (GPT, Whisper, Vision)
 Pinecone (vector DB)
-LangChain (agent + tools)
 Telegram Bot API
 Google APIs (Gmail, Calendar)
 
